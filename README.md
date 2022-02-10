@@ -30,4 +30,4 @@ python manage.py runserver
 
 # Testing:
 Create or enter room : http://localhost:8000/chat/ <br>
-Chatting : http://localhost:8000/chat/<roomname>/<username>  <br>
+Chatting : http://localhost:8000/chat/roomname/username  <br>
