@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -16,5 +17,16 @@ def index(request):
 def room(request, room_name , user_name):
     return render(request, 'chatting/room.html', {
         'room_name': room_name,
+        "user_name" : user_name
+    })
+
+def all_users(request):
+    users_obj = User.objects.all()
+    return render(request, 'chatting/all_users.html', {
+        "users" : users_obj
+    })
+
+def chat(request, user_name):
+    return render(request, 'chatting/chat.html', {
         "user_name" : user_name
     })
