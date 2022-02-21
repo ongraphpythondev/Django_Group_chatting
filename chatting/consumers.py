@@ -2,7 +2,6 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.contrib.auth.models import User
-from django.dispatch import receiver
 from .models import Connection , Message
 
 
@@ -13,36 +12,33 @@ class PersonalChatConsumer(WebsocketConsumer):
         self.user = self.scope["user"]
         if not self.user.is_authenticated :
             print("user is not authenticated")
-        self.other_user = User.objects.filter(username = self.user_name).first()
-        if not self.user.is_authenticated :
-            print("other user is not authenticated")
-        
-        self.connection_obj = Connection.get_or_create_room_id(self.user , self.other_user)
-        self.room_group_name = self.connection_obj.connection_id
-        
-
-        print(self.connection_obj.message.all().order_by('created_at'))
-
-        # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
-        self.accept()
-        self.all_messages = self.connection_obj.message.all().order_by('created_at')
-        self.send(text_data=json.dumps({"status": "connected woow" } ))
-        
-        if self.all_messages:
-            for message in self.all_messages:
-                print("hh")
-                data = {
-                    "username" : message.sender.username,
-                    "message" : message.message
-                }
-                self.send(text_data=json.dumps({
-                    'data': data
-                    } ))
-    	
+        else:
+            self.other_user = User.objects.filter(username = self.user_name).first()
+            if not self.other_user.is_authenticated :
+                print("other user is not authenticated")
+            
+            else:
+                self.connection_obj = Connection.get_or_create_room_id(self.user , self.other_user)
+                self.room_group_name = self.connection_obj.connection_id
+                
+                # Join room group
+                async_to_sync(self.channel_layer.group_add)(
+                    self.room_group_name,
+                    self.channel_name
+                )
+                self.accept()
+                self.all_messages = self.connection_obj.message.all().order_by('created_at')
+                
+                if self.all_messages:
+                    for message in self.all_messages:
+                        data = {
+                            "username" : message.sender.username,
+                            "message" : message.message
+                        }
+                        self.send(text_data=json.dumps({
+                            'data': data
+                            } ))
+                
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(

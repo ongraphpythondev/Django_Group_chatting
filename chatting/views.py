@@ -22,11 +22,19 @@ def room(request, room_name , user_name):
 
 def all_users(request):
     users_obj = User.objects.all()
+    if not request.user.is_authenticated :
+        return render(request, 'chatting/all_users.html', {
+            "message" : "user must login"
+        })
     return render(request, 'chatting/all_users.html', {
         "users" : users_obj
     })
 
 def chat(request, user_name):
+    if not request.user.is_authenticated :
+        return render(request, 'chatting/all_users.html', {
+            "message" : "user must login"
+        })
     return render(request, 'chatting/chat.html', {
         "user_name" : user_name
     })
